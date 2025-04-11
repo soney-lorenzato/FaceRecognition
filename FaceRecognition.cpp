@@ -64,45 +64,62 @@ int main(int argc, char** argv)
 
         Mat faces_camera;
 		_detector->setInputSize(query_frame.size());
+        _detector->setTopK(10);
         _detector->detect(query_frame, faces_camera);
         if (faces_camera.rows < 1)
         {
             cv::imshow("query_frame", query_frame);
             continue;
         }
-
-        cv::Mat aligned_camera;
-        _recognizer->alignCrop(query_frame, faces_camera.row(0), aligned_camera);
-        //cv::imshow("aligned_camera", aligned_camera);
-
-        // Extract features from camera
-        cv::Mat features_camera;
-        _recognizer->feature(aligned_camera, features_camera);
-        features_camera = features_camera.clone();
-
-        double inteiro = _recognizer->match(features_soney, features_camera, cv::FaceRecognizerSF::DisType::FR_COSINE);
-
-        double _threshold_cosine = 0.363;
-        double _threshold_norml2 = 1.128;
-        bool samePerson = false;
-        samePerson = (inteiro >= _threshold_cosine);
-        //samePerson = (inteiro <= _threshold_norml2);
-
-        printf("samePerson = %d / match = %f\n", samePerson, inteiro);
         
         for (int i = 0; i < faces_camera.rows; ++i)
         {
+            cv::Mat aligned_camera;
+            _recognizer->alignCrop(query_frame, faces_camera.row(i), aligned_camera);
+            //cv::imshow("aligned_camera", aligned_camera);
+
+            // Extract features from camera
+            cv::Mat features_camera;
+            _recognizer->feature(aligned_camera, features_camera);
+            features_camera = features_camera.clone();
+
+            double inteiro = _recognizer->match(features_soney, features_camera, cv::FaceRecognizerSF::DisType::FR_COSINE);
+
+            double _threshold_cosine = 0.363;
+            double _threshold_norml2 = 1.128;
+            bool samePerson = false;
+            samePerson = (inteiro >= _threshold_cosine);
+            //samePerson = (inteiro <= _threshold_norml2);
+
+            printf("samePerson = %d / match = %f\n", samePerson, inteiro);
+
             // Draw bounding boxes
             int x1 = static_cast<int>(faces_camera.at<float>(i, 0));
             int y1 = static_cast<int>(faces_camera.at<float>(i, 1));
             int w = static_cast<int>(faces_camera.at<float>(i, 2));
             int h = static_cast<int>(faces_camera.at<float>(i, 3));
-            cv::rectangle(query_frame, cv::Rect(x1, y1, w, h), cv::Scalar(0,255,0), 2);
-            if (samePerson)
-            {
-                cv::putText(query_frame, "Soney", cv::Point(x1, y1 - 20), cv::FONT_HERSHEY_DUPLEX,1, cv::Scalar(0,255,0), 2);
-            }
+
+            cv::rectangle(query_frame,
+                cv::Rect(x1, y1, w, h),
+                samePerson ?
+                    cv::Scalar(0,255,0) :
+                    cv::Scalar(0, 0, 255),
+                2);
+
+            // Put text
+            cv::putText(query_frame, 
+                samePerson ? 
+                    "Soney" : 
+                    "Other person", 
+                cv::Point(x1, y1 - 20), 
+                cv::FONT_HERSHEY_DUPLEX, 
+                1, 
+                samePerson ? 
+                    cv::Scalar(0, 255, 0) : 
+                    cv::Scalar(0, 0, 255),
+                2);
         }
+        // diaplay camera frame with boxes and texts
         cv::imshow("query_frame", query_frame);
     }
 	
