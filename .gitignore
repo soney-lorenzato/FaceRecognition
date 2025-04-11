@@ -4,3 +4,20 @@
 
 /haarcascade_frontalface_default.xml
 /.vs
+/FaceRecognition/x64/Debug/vc143.pdb
+/FaceRecognition/x64/Debug/vc143.idb
+/FaceRecognition/x64/Debug/FaceRecognition.obj
+/FaceRecognition/x64/Debug/FaceRecognition.ilk
+/FaceRecognition/x64/Debug/FaceRecognition.Build.CppClean.log
+/x64/Debug/FaceRecognition.exe
+/x64/Debug/FaceRecognition.pdb
+/x64/Release/FaceRecognition.exe
+/x64/Release/FaceRecognition.pdb
+/FaceRecognition/x64/Release/FaceRecognition2.log
+/FaceRecognition/x64/Release/FaceRecognition.obj
+/FaceRecognition/x64/Release/vc143.pdb
+/FaceRecognition/x64/Release/FaceRecognition.ipdb
+/FaceRecognition/x64/Release/FaceRecognition.iobj
+/FaceRecognition/x64/Release/FaceRecognition2.obj
+/FaceRecognition/x64/Release/FaceRecognition.tlog/CL.command.1.tlog
+/FaceRecognition/x64/Release/FaceRecognition.Build.CppClean.log
