@@ -76,7 +76,6 @@ int main(int argc, char** argv)
         {
             cv::Mat aligned_camera;
             _recognizer->alignCrop(query_frame, faces_camera.row(i), aligned_camera);
-            //cv::imshow("aligned_camera", aligned_camera);
 
             // Extract features from camera
             cv::Mat features_camera;
