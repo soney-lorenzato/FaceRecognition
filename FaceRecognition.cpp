@@ -21,6 +21,18 @@
 using namespace cv;
 using namespace std;
 
+class FaceFeatures
+{
+private:
+    cv::Mat _feature;
+	string _name;
+public:
+	FaceFeatures(cv::Mat image, string name) : _feature(image), _name(name) {}
+	cv::Mat getFeature() { return _feature; }
+	string getName() { return _name; }
+};
+
+
 
 int main(int argc, char** argv)
 {
@@ -28,25 +40,42 @@ int main(int argc, char** argv)
 		"face_recognition_sface_2021dec.onnx", "");
 
     cv::Ptr<cv::FaceDetectorYN> _detector = cv::FaceDetectorYN::create(
-        "face_detection_yunet_2023mar.onnx", "", cv::Size(320, 320), 0.9F, 0.3F, 1);
+        "face_detection_yunet_2023mar.onnx", "", cv::Size(320, 320), 0.9F, 0.3F, 10);
 
-	cv::Mat image_soney = imread("images\\Soney3.jpg");
+    list<FaceFeatures> _features = {};
 
-	// Detect face
-    Mat faces_soney;
-    _detector->setInputSize(image_soney.size());
-    _detector->detect(image_soney, faces_soney);
-    if (faces_soney.rows < 1)
+	cv::Mat image_soney     = imread("images\\Soney3.jpg");
+    cv::Mat image_cristiano = imread("images\\CristianoRonaldo.png");
+
+    list<tuple<string, cv::Mat>> _knownImages = { 
+        {"Soney", image_soney}, 
+		{"Cristiano", image_cristiano}
+    };
+
+    for (tuple<string, cv::Mat> var : _knownImages)
     {
-        return -1;
+        string name = std::get<0>(var);
+        cv::Mat photo = std::get<1>(var);
+
+        // Detect faces
+        Mat faces;
+        _detector->setInputSize(photo.size());
+        _detector->detect(photo, faces);
+        if (faces.rows < 1)
+        {
+            return -1;
+        }
+
+        cv::Mat aligned_photo;
+        _recognizer->alignCrop(photo, faces.row(0), aligned_photo);
+
+        cv::Mat features_photo;
+        _recognizer->feature(aligned_photo, features_photo);
+        features_photo = features_photo.clone();
+
+        // Save Soney features
+        _features.push_back(FaceFeatures(features_photo, name));
     }
-
-    cv::Mat aligned_soney;
-    _recognizer->alignCrop(image_soney, faces_soney.row(0), aligned_soney);
-
-	cv::Mat features_soney;
-	_recognizer->feature(aligned_soney, features_soney);
-    features_soney = features_soney.clone();
 
     const int device_id = 0;
     auto cap = cv::VideoCapture(device_id);
@@ -82,15 +111,25 @@ int main(int argc, char** argv)
             _recognizer->feature(aligned_camera, features_camera);
             features_camera = features_camera.clone();
 
-            double inteiro = _recognizer->match(features_soney, features_camera, cv::FaceRecognizerSF::DisType::FR_COSINE);
+			bool foundAPerson = false;
+			string foundName = "Other person";
+            for (FaceFeatures feat : _features)
+            {
+                double inteiro = _recognizer->match(feat.getFeature(), features_camera, cv::FaceRecognizerSF::DisType::FR_COSINE);
 
-            double _threshold_cosine = 0.363;
-            double _threshold_norml2 = 1.128;
-            bool samePerson = false;
-            samePerson = (inteiro >= _threshold_cosine);
-            //samePerson = (inteiro <= _threshold_norml2);
-
-            printf("samePerson = %d / match = %f\n", samePerson, inteiro);
+                double _threshold_cosine = 0.363;
+                double _threshold_norml2 = 1.128;
+                bool samePerson = false;
+                samePerson = (inteiro >= _threshold_cosine);
+                //samePerson = (inteiro <= _threshold_norml2);
+                
+                if (samePerson) {
+                    foundAPerson = true;
+					foundName = feat.getName();
+                    printf("samePerson = %d / match = %f / name = %s\n", samePerson, inteiro, feat.getName().c_str());
+                    break;
+                }
+            }
 
             // Draw bounding boxes
             int x1 = static_cast<int>(faces_camera.at<float>(i, 0));
@@ -100,23 +139,24 @@ int main(int argc, char** argv)
 
             cv::rectangle(query_frame,
                 cv::Rect(x1, y1, w, h),
-                samePerson ?
-                    cv::Scalar(0,255,0) :
-                    cv::Scalar(0, 0, 255),
+                foundAPerson ?
+                cv::Scalar(0, 255, 0) :
+                cv::Scalar(0, 0, 255),
                 2);
 
             // Put text
-            cv::putText(query_frame, 
-                samePerson ? 
-                    "Soney" : 
-                    "Other person", 
-                cv::Point(x1, y1 - 20), 
-                cv::FONT_HERSHEY_DUPLEX, 
-                1, 
-                samePerson ? 
-                    cv::Scalar(0, 255, 0) : 
-                    cv::Scalar(0, 0, 255),
+            cv::putText(query_frame,
+                foundAPerson ?
+                foundName.c_str() :
+                "Other person",
+                cv::Point(x1, y1 - 20),
+                cv::FONT_HERSHEY_DUPLEX,
+                1,
+                foundAPerson ?
+                cv::Scalar(0, 255, 0) :
+                cv::Scalar(0, 0, 255),
                 2);
+
         }
         // diaplay camera frame with boxes and texts
         cv::imshow("query_frame", query_frame);
