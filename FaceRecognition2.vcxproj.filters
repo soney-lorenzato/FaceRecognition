@@ -26,6 +26,9 @@
     <Image Include="images\CristianoRonaldo.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="images\MariaLuiza.jpeg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="face_recognition_sface_2021dec.onnx" />

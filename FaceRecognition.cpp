@@ -46,10 +46,12 @@ int main(int argc, char** argv)
 
 	cv::Mat image_soney     = imread("images\\Soney3.jpg");
     cv::Mat image_cristiano = imread("images\\CristianoRonaldo.png");
+    cv::Mat image_maria     = imread("images\\MariaLuiza.jpeg");
 
     list<tuple<string, cv::Mat>> _knownImages = { 
         {"Soney", image_soney}, 
-		{"Cristiano", image_cristiano}
+		{"Cristiano", image_cristiano},
+        {"Maria Luiza", image_maria}
     };
 
     for (tuple<string, cv::Mat> var : _knownImages)
