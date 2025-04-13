@@ -45,12 +45,10 @@ int main(int argc, char** argv)
     list<FaceFeatures> _features = {};
 
 	cv::Mat image_soney     = imread("images\\Soney3.jpg");
-    cv::Mat image_cristiano = imread("images\\CristianoRonaldo.png");
     cv::Mat image_maria     = imread("images\\MariaLuiza.jpeg");
 
     list<tuple<string, cv::Mat>> _knownImages = { 
         {"Soney", image_soney}, 
-		{"Cristiano", image_cristiano},
         {"Maria Luiza", image_maria}
     };
 
@@ -65,7 +63,8 @@ int main(int argc, char** argv)
         _detector->detect(photo, faces);
         if (faces.rows < 1)
         {
-            return -1;
+            printf("Person %s not loaded !!!", name.c_str());
+            continue;
         }
 
         cv::Mat aligned_photo;

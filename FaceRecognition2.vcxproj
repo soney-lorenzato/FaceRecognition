@@ -146,7 +146,6 @@
     <ClCompile Include="FaceRecognition.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="images\CristianoRonaldo.png" />
     <Image Include="images\MariaLuiza.jpeg" />
     <Image Include="images\Soney3.jpg" />
   </ItemGroup>

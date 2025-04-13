@@ -23,9 +23,6 @@
     <Image Include="images\Soney3.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="images\CristianoRonaldo.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="images\MariaLuiza.jpeg">
       <Filter>Resource Files</Filter>
     </Image>
