@@ -16,7 +16,7 @@
 #include <map>
 #include <vector>
 #include <string>
-
+#include <algorithm>
 
 using namespace cv;
 using namespace std;
@@ -115,10 +115,10 @@ int main(int argc, char** argv)
 
 			bool foundAPerson = false;
 			string foundName = "Other person";
+
             for (FaceFeatures feat : _features)
             {
                 double inteiro = _recognizer->match(feat.getFeature(), features_camera, cv::FaceRecognizerSF::DisType::FR_COSINE);
-
                 double _threshold_cosine = 0.363;
                 double _threshold_norml2 = 1.128;
                 bool samePerson = false;
